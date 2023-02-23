@@ -1,5 +1,6 @@
 package org.tversu.titanic;
 
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,7 +44,7 @@ public class Storage
     return new Passenger(Integer.valueOf(Character.toString(o.charAt(0))), o.charAt(1) == '1', o.charAt(2) == '1', o.charAt(3) == '1');
   }
 
-  @ShellMethod(key = "load_data")
+  @PostConstruct
   public void loadDataFromFile()
   {
     if (forTeach != null) {
@@ -51,28 +52,28 @@ public class Storage
       return;
     }
     ClassLoader classLoader = Storage.class.getClassLoader();
-    InputStream resourceAsStream = classLoader.getResourceAsStream(path);
 
-    BufferedReader reader = null;
-    if (resourceAsStream != null) {
-      reader = new BufferedReader(new InputStreamReader(resourceAsStream));
-    } else {
-      throw new IllegalPathStateException("Файл не найден");
+    try (InputStream resourceAsStream = classLoader.getResourceAsStream(path)) {
+      assert resourceAsStream != null;
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream))) {
+
+        forTeach = reader.lines()
+            .limit(1700)
+            .map(Storage::stringToPassenger)
+            .collect(Collectors.toList());
+
+        forTest = reader.lines()
+            .skip(1700)
+            .map(Storage::stringToPassenger)
+            .collect(Collectors.toList());
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-
-    forTeach = reader.lines()
-        .limit(1700)
-        .map(Storage::stringToPassenger)
-        .collect(Collectors.toList());
-
-    forTest = reader.lines()
-        .skip(1700)
-        .map(Storage::stringToPassenger)
-        .collect(Collectors.toList());
   }
 
   @ShellMethod(key = "test_data")
-  public List<Passenger> getForTestRandomOrder(@ShellOption(defaultValue = "false", value = "r") String isRandOrder)
+  public List<Passenger> getForTest(@ShellOption(defaultValue = "false", value = "random") String isRandOrder)
   {
     if (isRandOrder.equals("true")) {
       Collections.shuffle(forTest);
@@ -82,7 +83,7 @@ public class Storage
   }
 
   @ShellMethod(key = "teach_data")
-  public List<Passenger> getForTeachRandomOrder(@ShellOption(defaultValue = "false", value = "r") String isRandOrder)
+  public List<Passenger> getForTeach(@ShellOption(defaultValue = "false", value = "random") String isRandOrder)
   {
     if (isRandOrder.equals("true")) {
       Collections.shuffle(forTeach);
