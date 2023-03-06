@@ -1,16 +1,20 @@
 package org.tversu.titanic;
 
+import ch.qos.logback.core.util.FileUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.context.annotation.Description;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.util.ResourceUtils;
 
 import java.awt.geom.IllegalPathStateException;
 import java.io.BufferedReader;
@@ -21,6 +25,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,18 +39,18 @@ import java.util.stream.Collectors;
 public class Storage
 {
 
-  private static List<Passenger> forTest;
-  private static List<Passenger> forTeach;
+  private List<Passenger> forTest;
+  private List<Passenger> forTeach;
   private final String path = "titanic.data.gz.txt";
 
-  private static Passenger stringToPassenger(String o)
+  private Passenger stringToPassenger(String o)
   {
     o = o.replace(" ", "");
-    return new Passenger(Integer.valueOf(Character.toString(o.charAt(0))), o.charAt(1) == '1', o.charAt(2) == '1', o.charAt(3) == '1');
+    return new Passenger(Integer.valueOf(Character.toString(o.charAt(0))), Character.getNumericValue(o.charAt(1)), Character.getNumericValue(o.charAt(2)), Character.getNumericValue(o.charAt(3)));
   }
 
   @PostConstruct
-  public void loadDataFromFile()
+  public void loadDataFromFile() throws IOException
   {
     if (forTeach != null) {
       System.out.println("Data already converted.");
@@ -53,23 +58,14 @@ public class Storage
     }
     ClassLoader classLoader = Storage.class.getClassLoader();
 
-    try (InputStream resourceAsStream = classLoader.getResourceAsStream(path)) {
-      assert resourceAsStream != null;
-      try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream))) {
+    List<Passenger> passengers = FileUtils.readLines(ResourceUtils.getFile(path), StandardCharsets.UTF_8)
+        .stream()
+        .map(this::stringToPassenger)
+        .toList();
 
-        forTeach = reader.lines()
-            .limit(1700)
-            .map(Storage::stringToPassenger)
-            .collect(Collectors.toList());
+    forTeach = passengers.subList(0, 2000);
+    forTest = passengers.subList(2000, passengers.size());
 
-        forTest = reader.lines()
-            .skip(1700)
-            .map(Storage::stringToPassenger)
-            .collect(Collectors.toList());
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @ShellMethod(key = "test_data")

@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +13,7 @@ import lombok.NonNull;
 public class Passenger
 {
   private Integer cabinClass;
-  private Boolean isAdult;
-  private Boolean isMale;
-  private Boolean isSurvived;
+  private Integer isAdult;
+  private Integer isMale;
+  private Integer isSurvived;
 }
