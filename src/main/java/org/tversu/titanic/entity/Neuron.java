@@ -14,8 +14,8 @@ import java.util.List;
 @Data
 public class Neuron
 {
-  private List<Weight> inputNeurons = new ArrayList<>();
-  private List<Weight> outputNeurons = new ArrayList<>();
+  private List<Weight> inputWeights = new ArrayList<>();
+  private List<Weight> outputWeights = new ArrayList<>();
   private Double value = 0D;
   private Double error = 0D;
 }

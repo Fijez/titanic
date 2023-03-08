@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Weight
 {
-  private Long value;
+  private Double value;
   private Neuron inputNeuron;
   private Neuron outputNeuron;
 
