@@ -16,6 +16,6 @@ public class Neuron
 {
   private List<Weight> inputNeurons = new ArrayList<>();
   private List<Weight> outputNeurons = new ArrayList<>();
-  private Long value = 0L;
-  private Long error = 0L;
+  private Double value = 0D;
+  private Double error = 0D;
 }
