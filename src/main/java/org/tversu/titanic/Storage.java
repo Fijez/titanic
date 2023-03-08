@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.context.annotation.Description;
@@ -14,6 +15,7 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
 import java.awt.geom.IllegalPathStateException;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,35 +39,37 @@ import java.util.stream.Collectors;
 @Builder
 @ShellComponent
 @ShellCommandGroup(value = "storage")
+@Component
 public class Storage
 {
 
   private List<Passenger> forTest;
   private List<Passenger> forTeach;
-  private final String path = "titanic.data.gz.txt";
+  private final String path = "src/main/resources/titanic.data.gz.txt";
 
-  private Passenger stringToPassenger(String o)
+  private Passenger stringToPassenger(String o, Long id)
   {
     o = o.replace(" ", "");
-    return new Passenger(Integer.valueOf(Character.toString(o.charAt(0))), Character.getNumericValue(o.charAt(1)), Character.getNumericValue(o.charAt(2)), Character.getNumericValue(o.charAt(3)));
+    return new Passenger(id, Integer.valueOf(Character.toString(o.charAt(0))), Character.getNumericValue(o.charAt(1)), Character.getNumericValue(o.charAt(2)), Character.getNumericValue(o.charAt(3)));
   }
 
   @PostConstruct
   public void loadDataFromFile() throws IOException
   {
-    if (forTeach != null) {
+    if (forTeach != null  && forTeach.size() > 0) {
       System.out.println("Data already converted.");
       return;
     }
     ClassLoader classLoader = Storage.class.getClassLoader();
 
-    List<Passenger> passengers = FileUtils.readLines(ResourceUtils.getFile(path), StandardCharsets.UTF_8)
-        .stream()
-        .map(this::stringToPassenger)
-        .toList();
+    List<String> strings = FileUtils.readLines(ResourceUtils.getFile(path), StandardCharsets.UTF_8);
+    List<Passenger> passengers = new ArrayList<>();
+    for (int i = 0; i < strings.size(); i++) {
+      passengers.add(stringToPassenger(strings.get(i), (long)i));
+    }
 
-    forTeach = passengers.subList(0, 2000);
-    forTest = passengers.subList(2000, passengers.size());
+    forTeach = passengers.stream().limit(1700).collect(Collectors.toList());
+    forTest = passengers.stream().skip(1700).collect(Collectors.toList());
 
   }
 

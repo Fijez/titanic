@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 public class Passenger
 {
+  private Long id;
   private Integer cabinClass;
   private Integer isAdult;
   private Integer isMale;
