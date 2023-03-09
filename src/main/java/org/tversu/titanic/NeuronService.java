@@ -1,6 +1,8 @@
 package org.tversu.titanic;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.tversu.titanic.entity.Neuron;
@@ -19,9 +21,17 @@ public class NeuronService
 
   private final Storage storage;
   private List<List<Neuron>> neuronsNetwork;
-  private Double teachSpeed = 0.5;
-  private int limit = 1000;
-  private final double precision = 0.7;
+
+
+  @Value("${border}")
+  private Integer border;
+  private final Double countAllRecords = 2201D;
+  @Value("${teachSpeed}")
+  private Double teachSpeed;
+  @Value("${limit}")
+  private Integer limit;
+  @Value("${precision}")
+  private Double precision;
 
   @ShellMethod(key = "t")
   public void teach()
@@ -116,8 +126,9 @@ public class NeuronService
       clearNeuronValues();
     });
     System.out.println();
-    System.out.println("wrong 0 = " + countWrong0.get());
-    System.out.println("wrong 1 = " + countWrong1.get());
+    System.out.println("must be 0 but 1 = " + countWrong0.get());
+    System.out.println("must be 1 but 0 = " + countWrong1.get());
+    System.out.println("процент ошибки = " + 100*(countWrong0.get()+countWrong1.get())/(countAllRecords-border));
   }
 
   private Double sumWeightedIncomingSignals(Neuron n)

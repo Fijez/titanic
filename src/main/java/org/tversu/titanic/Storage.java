@@ -1,16 +1,11 @@
 package org.tversu.titanic;
 
-import ch.qos.logback.core.util.FileUtil;
 import jakarta.annotation.PostConstruct;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.context.annotation.Description;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -18,15 +13,7 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
-import java.awt.geom.IllegalPathStateException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,8 +22,7 @@ import java.util.stream.Collectors;
 
 @Data
 @Getter(onMethod_ = {@ShellMethod})
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor
 @ShellComponent
 @ShellCommandGroup(value = "storage")
 @Component
@@ -46,7 +32,10 @@ public class Storage
   private List<Passenger> forTest;
   private List<Passenger> forTeach;
   private final String path = "src/main/resources/titanic.data.gz.txt";
-  private final int border = 1500;
+  @Value("${border}")
+  private Integer border;
+  @Value("${shuffle}")
+  private Boolean shuffle;
 
   private Passenger stringToPassenger(String o, Long id)
   {
@@ -64,6 +53,10 @@ public class Storage
     ClassLoader classLoader = Storage.class.getClassLoader();
 
     List<String> strings = FileUtils.readLines(ResourceUtils.getFile(path), StandardCharsets.UTF_8);
+    if(shuffle){
+      System.out.println("Входные данные перемешаны перед формированием массивов для теста и для обучения");
+      Collections.shuffle(strings);
+    }
     List<Passenger> passengers = new ArrayList<>();
     for (int i = 0; i < strings.size(); i++) {
       passengers.add(stringToPassenger(strings.get(i), (long)i));
