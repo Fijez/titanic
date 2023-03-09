@@ -50,7 +50,6 @@ public class Storage
       System.out.println("Data already converted.");
       return;
     }
-    ClassLoader classLoader = Storage.class.getClassLoader();
 
     List<String> strings = FileUtils.readLines(ResourceUtils.getFile(path), StandardCharsets.UTF_8);
     if(shuffle){
