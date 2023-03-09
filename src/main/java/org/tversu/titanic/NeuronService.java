@@ -9,6 +9,7 @@ import org.tversu.titanic.entity.Weight;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @ShellComponent
@@ -20,6 +21,7 @@ public class NeuronService
   private List<List<Neuron>> neuronsNetwork;
   private Double teachSpeed = 0.5;
   private int limit = 1000;
+  private final double precision = 0.7;
 
   @ShellMethod(key = "t")
   public void teach()
@@ -87,6 +89,8 @@ public class NeuronService
   private void testNetwork(){
     List<Passenger> forTest = storage.getForTest();
     Collections.shuffle(forTest);
+    AtomicInteger countWrong0 = new AtomicInteger();
+    AtomicInteger countWrong1 = new AtomicInteger();
     forTest.forEach(inputData -> {
       neuronsNetwork.get(0).get(0).setValue(inputData.getIsMale().doubleValue());
       neuronsNetwork.get(0).get(1).setValue(inputData.getIsAdult().doubleValue());
@@ -98,14 +102,22 @@ public class NeuronService
           n.setValue(activationSigmoida(sumWeightedIncomingSignals(n)));
         }
       }
-      if((inputData.getIsSurvived() == 0 && neuronsNetwork.get(2).get(0).getValue() >= 0.7) ||
-      inputData.getIsSurvived() == 1 && neuronsNetwork.get(2).get(0).getValue() <= 0.7) {
-        System.out.println("res = " + neuronsNetwork.get(2).get(0).getValue() + " " +
-            "standart = " + inputData.getIsSurvived());
-        System.out.println(inputData);
+      if((inputData.getIsSurvived() == 0 && neuronsNetwork.get(2).get(0).getValue() >= precision) ||
+      inputData.getIsSurvived() == 1 && neuronsNetwork.get(2).get(0).getValue() <= precision) {
+//        System.out.println("res = " + neuronsNetwork.get(2).get(0).getValue() + " " +
+//            "standart = " + inputData.getIsSurvived());
+//        System.out.println(inputData);
+        if (inputData.getIsSurvived() == 0){
+          countWrong0.getAndIncrement();
+        } else {
+          countWrong1.getAndIncrement();
+        }
       }
       clearNeuronValues();
     });
+    System.out.println();
+    System.out.println("wrong 0 = " + countWrong0.get());
+    System.out.println("wrong 1 = " + countWrong1.get());
   }
 
   private Double sumWeightedIncomingSignals(Neuron n)

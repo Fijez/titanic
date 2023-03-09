@@ -46,6 +46,7 @@ public class Storage
   private List<Passenger> forTest;
   private List<Passenger> forTeach;
   private final String path = "src/main/resources/titanic.data.gz.txt";
+  private final int border = 1500;
 
   private Passenger stringToPassenger(String o, Long id)
   {
@@ -68,8 +69,8 @@ public class Storage
       passengers.add(stringToPassenger(strings.get(i), (long)i));
     }
 
-    forTeach = passengers.stream().limit(1700).collect(Collectors.toList());
-    forTest = passengers.stream().skip(1700).collect(Collectors.toList());
+    forTeach = passengers.stream().limit(border).collect(Collectors.toList());
+    forTest = passengers.stream().skip(border).collect(Collectors.toList());
 
   }
 
