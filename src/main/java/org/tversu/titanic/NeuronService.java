@@ -37,7 +37,9 @@ public class NeuronService
   public void teach()
   {
 
-    initialisationNetwork();
+    if(neuronsNetwork == null || neuronsNetwork.size() == 0) {
+      initialisationNetwork();
+    }
 
     List<Passenger> forTeach = storage.getForTeach();
 

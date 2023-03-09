@@ -45,13 +45,9 @@ public class Storage
   }
 
   @PostConstruct
+  @ShellMethod(key = "load_data")
   public void loadDataFromFile() throws IOException
   {
-    if (forTeach != null  && forTeach.size() > 0) {
-      System.out.println("Data already converted.");
-      return;
-    }
-
     List<String> strings = FileUtils.readLines(ResourceUtils.getFile(path), StandardCharsets.UTF_8);
     if(shuffle){
       System.out.println("Входные данные перемешаны перед формированием массивов для теста и для обучения");
