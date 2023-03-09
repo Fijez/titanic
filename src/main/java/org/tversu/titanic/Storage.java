@@ -13,6 +13,7 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -56,6 +57,21 @@ public class Storage
       System.out.println("Входные данные перемешаны перед формированием массивов для теста и для обучения");
       Collections.shuffle(strings);
     }
+    List<Passenger> passengers = new ArrayList<>();
+    for (int i = 0; i < strings.size(); i++) {
+      passengers.add(stringToPassenger(strings.get(i), (long)i));
+    }
+
+    forTeach = passengers.stream().limit(border).collect(Collectors.toList());
+    forTest = passengers.stream().skip(border).collect(Collectors.toList());
+
+  }
+
+  @ShellMethod(key = "r")
+  public void redistributeData() throws IOException
+  {
+    List<String> strings = FileUtils.readLines(ResourceUtils.getFile(path), StandardCharsets.UTF_8);
+    Collections.shuffle(strings);
     List<Passenger> passengers = new ArrayList<>();
     for (int i = 0; i < strings.size(); i++) {
       passengers.add(stringToPassenger(strings.get(i), (long)i));
