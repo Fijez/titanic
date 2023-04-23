@@ -1,6 +1,5 @@
 package org.tversu.titanic;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.shell.standard.ShellComponent;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 
 @ShellComponent
 @RequiredArgsConstructor
-public class NeuronService
+public class HideLayers
 {
 
   private final Storage storage;
@@ -33,7 +32,7 @@ public class NeuronService
   @Value("${precision}")
   private Double precision;
 
-  @ShellMethod(key = "t")
+  @ShellMethod(key = "tHL")
   public void teach()
   {
 
@@ -97,7 +96,7 @@ public class NeuronService
     }
   }
 
-  @ShellMethod(key = "test")
+  @ShellMethod(key = "testHL")
   private void testNetwork(){
     List<Passenger> forTest = storage.getForTest();
     Collections.shuffle(forTest);
@@ -230,7 +229,7 @@ public class NeuronService
     return list;
   }
 
-  @ShellMethod(key = "c")
+  @ShellMethod(key = "cHL")
   public void clearNetwork()
   {
     neuronsNetwork = null;
